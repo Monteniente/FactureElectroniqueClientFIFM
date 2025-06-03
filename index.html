@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Facture Électronique : Guide Essentiel pour Votre Entreprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        h1, h2, h3, .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+        [x-cloak] { display: none !important; }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+            padding-bottom: 8px; /* Espace pour la barre animée */
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #3b82f6; /* Bleu pour l'accent */
+            transition: width 0.3s ease;
+        }
+        .nav-link.active {
+            color: #3b82f6; /* Bleu pour l'accent */
+            font-weight: 600;
+        }
+        .nav-link.active::after,
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .nav-link:not(.active):hover {
+            color: #60a5fa; /* Bleu plus clair au survol */
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-button.active {
+            color: #3b82f6; /* Bleu pour l'accent */
+            border-bottom-color: #3b82f6;
+            font-weight: 600;
+        }
+        .tab-button:hover:not(.active) {
+            color: #60a5fa;
+            border-bottom-color: #93c5fd; /* Bleu encore plus clair pour survol non actif */
+        }
+
+        .accordion-content-wrapper {
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
+            max-height: 0; /* État initial fermé */
+            opacity: 0;    /* État initial fermé et invisible */
+        }
+        .accordion-header svg {
+            transition: transform 0.3s ease;
+        }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e5e7eb; /* Bordure légère */
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.07), 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .chart-container {
+            padding: 1rem;
+            background-color: #f9fafb; /* Fond légèrement différent pour les graphiques */
+            border-radius: 0.5rem;
+        }
+        .animate-fadeIn { /* Classe pour les animations d'apparition des onglets */
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-700" x-data="{
+    activeSection: 'accueil',
+    mobileMenuOpen: false,
+    init() {
+        this.$watch('activeSection', (newValue, oldValue) => {
+            if (newValue !== oldValue) {
+                const targetElement = document.querySelector(`[data-section='${newValue}']`);
+                if (targetElement) {
+                    const headerOffset = document.querySelector('header').offsetHeight || 80;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                } else {
+                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                if (this.mobileMenuOpen) {
+                    this.mobileMenuOpen = false;
+                }
+            }
+        });
+    }
+}">
+
+    <header class="bg-white shadow-sm sticky top-0 z-30 w-full">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <h1 class="text-2xl lg:text-3xl font-semibold text-gray-800 font-poppins">
+                    Facture<span class="text-blue-600">Électronique</span>
+                </h1>
+                <div class="md:hidden">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Ouvrir le menu" class="text-gray-600 hover:text-blue-600 focus:outline-none p-2">
+                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="mobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16m-7 6h7'" />
+                        </svg>
+                    </button>
+                </div>
+                <nav class="hidden md:flex space-x-3 lg:space-x-5 text-sm lg:text-base">
+                    <a href="#accueil" @click.prevent="activeSection = 'accueil'" class="nav-link text-gray-600" :class="{ 'active': activeSection === 'accueil' }">Accueil</a>
+                    <a href="#reforme" @click.prevent="activeSection = 'reforme'" class="nav-link text-gray-600" :class="{ 'active': activeSection === 'reforme' }">La Réforme</a>
+                    <a href="#avantages" @click.prevent="activeSection = 'avantages'" class="nav-link text-gray-600" :class="{ 'active': activeSection === 'avantages' }">Vos Avantages</a>
+                    <a href="#accompagnement" @click.prevent="activeSection = 'accompagnement'" class="nav-link text-gray-600" :class="{ 'active': activeSection === 'accompagnement' }">Accompagnement</a>
+                    <a href="#faq" @click.prevent="activeSection = 'faq'" class="nav-link text-gray-600" :class="{ 'active': activeSection === 'faq' }">FAQ</a>
+                </nav>
+            </div>
+        </div>
+        <div x-show="mobileMenuOpen"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 -translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-4"
+             @click.away="mobileMenuOpen = false" 
+             x-cloak 
+             class="md:hidden bg-white shadow-xl absolute top-full left-0 right-0 z-40">
+            <nav class="flex flex-col py-3">
+                <a href="#accueil" @click.prevent="activeSection = 'accueil'; mobileMenuOpen = false" class="block py-3 px-5 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600" :class="{ 'bg-blue-50 text-blue-700': activeSection === 'accueil' }">Accueil & Obligations</a>
+                <a href="#reforme" @click.prevent="activeSection = 'reforme'; mobileMenuOpen = false" class="block py-3 px-5 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600" :class="{ 'bg-blue-50 text-blue-700': activeSection === 'reforme' }">La Réforme en Détail</a>
+                <a href="#avantages" @click.prevent="activeSection = 'avantages'; mobileMenuOpen = false" class="block py-3 px-5 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600" :class="{ 'bg-blue-50 text-blue-700': activeSection === 'avantages' }">Les Avantages pour Vous</a>
+                <a href="#accompagnement" @click.prevent="activeSection = 'accompagnement'; mobileMenuOpen = false" class="block py-3 px-5 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600" :class="{ 'bg-blue-50 text-blue-700': activeSection === 'accompagnement' }">Notre Accompagnement</a>
+                <a href="#faq" @click.prevent="activeSection = 'faq'; mobileMenuOpen = false" class="block py-3 px-5 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600" :class="{ 'bg-blue-50 text-blue-700': activeSection === 'faq' }">FAQ</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        
+        <section data-section="accueil" x-show="activeSection === 'accueil'" x-cloak class="space-y-8 sm:space-y-12 scroll-mt-20">
+            <div class="bg-white p-6 sm:p-8 lg:p-10 rounded-xl shadow-lg">
+                <h2 class="text-3xl lg:text-4xl font-semibold text-gray-800 mb-6 lg:mb-8 font-poppins">Préparez votre entreprise à la <span class="text-blue-600">facture électronique</span></h2>
+                <p class="text-lg text-gray-600 mb-5">
+                    La généralisation de la facture électronique en France est une transformation majeure. Elle modernise la gestion des factures pour toutes les entreprises assujetties à la TVA, y compris la vôtre.
+                </p>
+                <p class="text-lg text-gray-600 mb-8">
+                    C'est une opportunité de simplifier vos démarches, sécuriser vos échanges et optimiser votre gestion. Ce guide vous explique ce que cela implique et comment notre cabinet vous accompagne.
+                </p>
+                <div class="grid md:grid-cols-2 gap-6 lg:gap-8">
+                    <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                        <h3 class="text-xl lg:text-2xl font-semibold text-blue-700 mb-4 font-poppins">Vos Obligations Clés :</h3>
+                        <ul class="list-disc list-inside space-y-2 text-base text-gray-700">
+                            <li><span class="font-semibold">Réception</span> des factures électroniques : obligatoire pour <span class="font-semibold">toutes les entreprises</span> dès le <span class="font-semibold text-blue-600">1er Septembre 2026</span>.</li>
+                            <li><span class="font-semibold">Émission</span> et <span class="font-semibold">e-reporting</span> progressifs :
+                                <ul class="list-['–'] list-inside ml-5 mt-1 space-y-1">
+                                    <li><span class="font-semibold text-blue-600">1er Sept. 2026</span> : Grandes Entreprises (GE) et ETI.</li>
+                                    <li><span class="font-semibold text-blue-600">1er Sept. 2027</span> : PME et micro-entreprises.</li>
+                                </ul>
+                            </li>
+                            <li>Utilisation du Portail Public de Facturation (PPF) ou d'une Plateforme de Dématérialisation Partenaire (PDP).</li>
+                            <li>Nous vous aidons à adapter vos processus et choisir les bonnes solutions.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-100 p-6 rounded-lg border border-gray-200">
+                        <h3 class="text-xl lg:text-2xl font-semibold text-gray-700 mb-4 font-poppins">Navigation Rapide :</h3>
+                        <p class="text-base text-gray-600">Explorez les sections via le menu ou ci-dessous :</p>
+                        <ul class="list-none space-y-2 mt-3 text-base">
+                            <li><a href="#reforme" @click.prevent="activeSection = 'reforme'" class="text-blue-600 hover:text-blue-700 font-medium hover:underline">La Réforme en Détail &rarr;</a></li>
+                            <li><a href="#avantages" @click.prevent="activeSection = 'avantages'" class="text-blue-600 hover:text-blue-700 font-medium hover:underline">Les Avantages pour Vous &rarr;</a></li>
+                            <li><a href="#accompagnement" @click.prevent="activeSection = 'accompagnement'" class="text-blue-600 hover:text-blue-700 font-medium hover:underline">Notre Accompagnement &rarr;</a></li>
+                             <li><a href="#faq" @click.prevent="activeSection = 'faq'" class="text-blue-600 hover:text-blue-700 font-medium hover:underline">FAQ &rarr;</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section data-section="reforme" x-show="activeSection === 'reforme'" x-cloak class="space-y-8 sm:space-y-12 scroll-mt-20">
+            <div class="bg-white p-6 sm:p-8 lg:p-10 rounded-xl shadow-lg">
+                <h2 class="text-3xl lg:text-4xl font-semibold text-gray-800 mb-6 lg:mb-8 font-poppins">La Réforme de la Facture Électronique en <span class="text-blue-600">Détail</span></h2>
+                <p class="text-lg text-gray-600 mb-8">Comprendre les objectifs, le calendrier, les plateformes, les formats, les mentions obligatoires et les sanctions est essentiel pour une transition réussie.</p>
+
+                <div x-data="{ activeTab: 'definitions' }" class="mb-8">
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex flex-wrap space-x-3 sm:space-x-6" aria-label="Tabs">
+                            <button @click="activeTab = 'definitions'" :class="{ 'active': activeTab === 'definitions' }" class="tab-button whitespace-nowrap py-3 px-1 sm:px-2 text-sm sm:text-base text-gray-500 hover:text-blue-600">
+                                Définitions & Objectifs
+                            </button>
+                            <button @click="activeTab = 'calendrier'" :class="{ 'active': activeTab === 'calendrier' }" class="tab-button whitespace-nowrap py-3 px-1 sm:px-2 text-sm sm:text-base text-gray-500 hover:text-blue-600">
+                                Calendrier & Plateformes
+                            </button>
+                            <button @click="activeTab = 'formats'" :class="{ 'active': activeTab === 'formats' }" class="tab-button whitespace-nowrap py-3 px-1 sm:px-2 text-sm sm:text-base text-gray-500 hover:text-blue-600">
+                                Formats & Mentions
+                            </button>
+                             <button @click="activeTab = 'sanctions'" :class="{ 'active': activeTab === 'sanctions' }" class="tab-button whitespace-nowrap py-3 px-1 sm:px-2 text-sm sm:text-base text-gray-500 hover:text-blue-600">
+                                Sanctions
+                            </button>
+                        </nav>
+                    </div>
+
+                    <div x-show="activeTab === 'definitions'" class="space-y-6 animate-fadeIn" x-cloak>
+                        <h3 class="text-xl lg:text-2xl font-semibold text-gray-700 font-poppins">Définitions Clés</h3>
+                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                            <h4 class="font-semibold text-gray-800 text-lg">Facture Électronique (e-invoicing)</h4>
+                            <p class="text-sm text-gray-600 mt-1">Facture créée, envoyée et reçue en format électronique structuré, permettant un traitement automatique. Elle transite via des plateformes sécurisées (PPF/PDP), ce n'est pas un simple PDF par email.</p>
+                        </div>
+                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                            <h4 class="font-semibold text-gray-800 text-lg">E-reporting (transmission de données)</h4>
+                            <p class="text-sm text-gray-600 mt-1">Obligation de transmettre à l'administration fiscale des informations sur les opérations non couvertes par l'e-invoicing (ventes B2C, transactions internationales, certaines données de paiement).</p>
+                        </div>
+                        <h3 class="text-xl lg:text-2xl font-semibold text-gray-700 mt-8 font-poppins">Objectifs de la Réforme</h3>
+                        <ul class="list-disc list-inside space-y-2 text-base text-gray-600 pl-2">
+                            <li>Combattre la fraude à la TVA.</li>
+                            <li>Simplifier les déclarations de TVA (pré-remplissage à terme).</li>
+                            <li>Réduire les coûts et délais de paiement.</li>
+                            <li>Moderniser les entreprises et leurs processus.</li>
+                            <li>Améliorer la connaissance de l'activité économique.</li>
+                        </ul>
+                    </div>
+
+                    <div x-show="activeTab === 'calendrier'" class="space-y-8 animate-fadeIn" x-cloak>
+                        <div>
+                            <h3 class="text-xl lg:text-2xl font-semibold text-gray-700 mb-4 font-poppins">Calendrier de Déploiement</h3>
+                             <p class="text-base text-gray-600 mb-5">La mise en œuvre est progressive. <span class="font-semibold">Important :</span> vous devrez pouvoir <span class="font-semibold">recevoir</span> des factures électroniques dès le <span class="font-semibold text-blue-600">1er septembre 2026</span>.</p>
+                            <div class="chart-container h-72 sm:h-80 md:h-96 max-w-full lg:max-w-3xl mx-auto">
+                                <canvas id="calendrierChart"></canvas>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-3 text-center">Calendrier ajusté par la loi de finances pour 2024.</p>
+                        </div>
+                        <div>
+                            <h3 class="text-xl lg:text-2xl font-semibold text-gray-700 mb-4 font-poppins">Les Plateformes d'Échange : Vos Options</h3>
+                            <p class="text-base text-gray-600 mb-5">Pour émettre et recevoir vos factures électroniques, vous interagirez avec différents types de plateformes. Voici un aperçu pour vous aider à comprendre leurs rôles :</p>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-2">1. Portail Public de Facturation (PPF)</h4>
+                                    <p class="text-sm text-gray-600 mb-2">Le PPF est la solution <span class="font-semibold">gratuite</span> mise à disposition par l'État (basée sur Chorus Pro). Il assure les services essentiels :</p>
+                                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-4">
+                                        <li>Émission et réception des factures électroniques aux formats réglementaires.</li>
+                                        <li>Transmission des données de facturation (e-invoicing) et de transaction (e-reporting) à l'administration fiscale.</li>
+                                        <li>Gestion de l'annuaire centralisé des entreprises pour l'adressage des factures.</li>
+                                    </ul>
+                                    <p class="text-sm text-gray-600 mt-3"><span class="font-semibold">Pour qui ?</span> C'est la solution de base, notamment si vous n'optez pas pour une PDP. Elle garantit la conformité minimale requise.</p>
+                                </div>
+
+                                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-2">2. Plateformes de Dématérialisation Partenaires (PDP)</h4>
+                                    <p class="text-sm text-gray-600 mb-2">Les PDP sont des entreprises privées <span class="font-semibold">immatriculées par l'État</span>. Elles offrent des services plus étendus que le PPF, souvent payants, et peuvent inclure :</p>
+                                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-4">
+                                        <li>Conversion des factures dans différents formats.</li>
+                                        <li>Contrôles de conformité avancés.</li>
+                                        <li>Intégration poussée avec vos logiciels de gestion, comptabilité, ERP.</li>
+                                        <li>Tableaux de bord de suivi, gestion des statuts de factures.</li>
+                                        <li>Archivage à valeur probante.</li>
+                                        <li>Services additionnels : relances, aide au paiement, etc.</li>
+                                    </ul>
+                                    <p class="text-sm text-gray-600 mt-3"><span class="font-semibold">Pour qui ?</span> Les PDP sont un choix stratégique si vous recherchez une solution plus complète, une meilleure automatisation de vos processus ou des services spécifiques à votre secteur d'activité. Le choix d'une PDP dépendra de la taille de votre entreprise, de la complexité de vos flux et de votre budget.</p>
+                                </div>
+
+                                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-2">3. Opérateurs de Dématérialisation (OD)</h4>
+                                    <p class="text-sm text-gray-600 mb-2">Les OD sont des prestataires techniques (par exemple, votre éditeur de logiciel de facturation ou de comptabilité) qui ne sont <span class="font-semibold">pas immatriculés</span> par l'État comme les PDP. Leur rôle est de :</p>
+                                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-4">
+                                        <li>Vous aider à préparer vos factures au bon format.</li>
+                                        <li>Transmettre vos factures et données de e-reporting soit au PPF, soit à la PDP que vous (ou votre client) avez choisie.</li>
+                                        <li>Ils ne transmettent pas directement les données à l'administration fiscale mais agissent comme un intermédiaire technique.</li>
+                                    </ul>
+                                    <p class="text-sm text-gray-600 mt-3"><span class="font-semibold">Pour qui ?</span> Votre logiciel actuel pourrait déjà fonctionner comme un OD ou le devenir. C'est une option si vous souhaitez conserver vos outils existants tout en vous connectant à l'écosystème de la facture électronique.</p>
+                                </div>
+                            </div>
+                             <p class="text-base text-gray-600 mt-6">Le choix entre ces solutions (utiliser le PPF directement, passer par une PDP, ou s'appuyer sur un OD connecté au PPF/PDP) est une décision importante. <span class="font-semibold">Notre cabinet est là pour vous conseiller et vous aider à identifier la meilleure approche pour votre entreprise.</span></p>
+                        </div>
+                    </div>
+
+                    <div x-show="activeTab === 'formats'" class="space-y-6 animate-fadeIn" x-cloak>
+                        <h3 class="text-xl lg:text-2xl font-semibold text-gray-700 font-poppins">Formats de Facture Acceptés</h3>
+                        <p class="text-base text-gray-600">Vos factures électroniques devront respecter des formats spécifiques. Les principaux :</p>
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                <h4 class="font-semibold text-gray-800 text-lg">Factur-X</h4>
+                                <p class="text-sm text-gray-600 mt-1">Format mixte (PDF lisible + données XML structurées). Idéal pour TPE/PME.</p>
+                            </div>
+                            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                <h4 class="font-semibold text-gray-800 text-lg">UBL ou CII</h4>
+                                <p class="text-sm text-gray-600 mt-1">Formats purement structurés (XML) pour une automatisation poussée.</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-3">Les PDP pourront convertir les formats pour assurer la compatibilité.</p>
+                        
+                        <h3 class="text-xl lg:text-2xl font-semibold text-gray-700 mt-8 font-poppins">Nouvelles Mentions Obligatoires (Factures B2B)</h3>
+                        <p class="text-base text-gray-600">En plus des mentions habituelles, il faudra ajouter :</p>
+                        <ul class="list-disc list-inside space-y-2 text-base text-gray-600 pl-2">
+                            <li>Le <span class="font-semibold">numéro SIREN de votre client</span>.</li>
+                            <li>L'<span class="font-semibold">adresse de livraison des biens</span> (si différente de l'adresse de facturation).</li>
+                            <li>La <span class="font-semibold">catégorie de l'opération</span> (livraison de biens / prestation de services / mixte).</li>
+                            <li>La mention <span class="font-semibold">"Option pour le paiement de la taxe d'après les débits"</span> (si vous avez fait ce choix pour la TVA).</li>
+                        </ul>
+                        <p class="text-sm text-gray-500 mt-3">Nous vous aiderons à assurer la conformité de vos factures.</p>
+                    </div>
+                    
+                    <div x-show="activeTab === 'sanctions'" class="space-y-6 animate-fadeIn" x-cloak>
+                        <h3 class="text-xl lg:text-2xl font-semibold text-gray-700 mb-4 font-poppins">Sanctions en Cas de Non-Conformité</h3>
+                        <p class="text-base text-gray-600 mb-5">Le non-respect des obligations expose à des amendes :</p>
+                        <div class="grid md:grid-cols-2 gap-6 items-center">
+                            <div class="bg-red-50 p-5 rounded-lg border border-red-200">
+                                <ul class="list-disc list-inside space-y-2 text-base text-red-700">
+                                    <li>Non-émission e-invoicing : <span class="font-semibold">15 € par facture</span>.</li>
+                                    <li>Non-transmission e-reporting : <span class="font-semibold">250 € par transmission</span>.</li>
+                                </ul>
+                                <p class="mt-3 text-sm text-red-600">Plafond de 15 000 € par an et par obligation. Ces sanctions peuvent toucher le fournisseur et le client. Notre rôle est de vous aider à les éviter.</p>
+                            </div>
+                            <div class="chart-container h-60 sm:h-64 md:h-72 max-w-full lg:max-w-md mx-auto">
+                                <canvas id="sanctionsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section data-section="avantages" x-show="activeSection === 'avantages'" x-cloak class="space-y-8 sm:space-y-12 scroll-mt-20">
+            <div class="bg-white p-6 sm:p-8 lg:p-10 rounded-xl shadow-lg">
+                <h2 class="text-3xl lg:text-4xl font-semibold text-gray-800 mb-6 lg:mb-8 font-poppins">Les <span class="text-blue-600">Avantages</span> Concrets pour Votre Entreprise</h2>
+                <p class="text-lg text-gray-600 mb-8">La facture électronique est plus qu'une contrainte : c'est une source d'optimisation et de modernisation.</p>
+
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                    <div class="card bg-white p-6 rounded-lg flex flex-col">
+                        <div class="flex-shrink-0 mb-4">
+                            <svg class="w-10 h-10 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2 font-poppins">Gains de Temps Significatifs</h3>
+                        <p class="text-gray-600 text-sm flex-grow">Automatisation des tâches manuelles (saisie, envoi, réception), libérant du temps pour des activités à plus forte valeur ajoutée.</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-lg flex flex-col">
+                        <div class="flex-shrink-0 mb-4">
+                            <svg class="w-10 h-10 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2 font-poppins">Réduction des Coûts</h3>
+                        <p class="text-gray-600 text-sm flex-grow">Économies sur l'impression, l'affranchissement, le stockage physique et la diminution des erreurs de traitement.</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-lg flex flex-col">
+                        <div class="flex-shrink-0 mb-4">
+                             <svg class="w-10 h-10 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28a11.95 11.95 0 00-5.814 5.519l-2.74 1.22m0 0L2.25 18S2.25 9.75 9 9.75s6.75 0 6.75 0S21.75 18 21.75 18" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2 font-poppins">Amélioration de la Trésorerie</h3>
+                        <p class="text-gray-600 text-sm flex-grow">Accélération des délais de paiement grâce à une transmission rapide et un meilleur suivi des factures.</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-lg flex flex-col">
+                        <div class="flex-shrink-0 mb-4">
+                            <svg class="w-10 h-10 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 0A11.953 11.953 0 0112 2.75c1.236 0 2.44.176 3.598.514m-6.796 0A11.953 11.953 0 0012 2.75c-1.236 0-2.44.176-3.598.514m0 0A11.953 11.953 0 005.402 6.036" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2 font-poppins">Relations Simplifiées et Sécurisées</h3>
+                        <p class="text-gray-600 text-sm flex-grow">Fluidification des échanges avec clients, fournisseurs et administration. Meilleure traçabilité et sécurité.</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-lg flex flex-col">
+                         <div class="flex-shrink-0 mb-4">
+                            <svg class="w-10 h-10 text-teal-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2 font-poppins">Modernisation de l'Entreprise</h3>
+                        <p class="text-gray-600 text-sm flex-grow">Adoption de processus numériques modernes, renforcement de votre image et contribution à une démarche éco-responsable.</p>
+                    </div>
+                     <div class="card bg-white p-6 rounded-lg flex flex-col">
+                         <div class="flex-shrink-0 mb-4">
+                           <svg class="w-10 h-10 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2 font-poppins">Conformité Facilitée</h3>
+                        <p class="text-gray-600 text-sm flex-grow">Simplification à terme des obligations déclaratives (TVA) et assurance d'être en phase avec la réglementation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section data-section="accompagnement" x-show="activeSection === 'accompagnement'" x-cloak class="space-y-8 sm:space-y-12 scroll-mt-20">
+            <div class="bg-white p-6 sm:p-8 lg:p-10 rounded-xl shadow-lg">
+                <h2 class="text-3xl lg:text-4xl font-semibold text-gray-800 mb-6 lg:mb-8 font-poppins">Notre <span class="text-blue-600">Accompagnement</span> Personnalisé</h2>
+                <p class="text-lg text-gray-600 mb-8">Nous sommes à vos côtés pour transformer cette obligation en opportunité, avec un plan d'action adapté à votre entreprise.</p>
+                
+                <div x-data="{ activeAccordion: null }" class="space-y-4">
+                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                        <button @click="activeAccordion = activeAccordion === 'info' ? null : 'info'" class="accordion-header w-full text-left p-4 sm:p-5 flex justify-between items-center">
+                            <h3 class="text-lg sm:text-xl font-semibold text-gray-700 font-poppins">1. Information et Analyse Préalable</h3>
+                            <svg :class="{'rotate-180': activeAccordion === 'info'}" class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content-wrapper" 
+                             :style="activeAccordion === 'info' ? { maxHeight: $el.scrollHeight + 'px', opacity: 1 } : {}">
+                            <div class="p-4 sm:p-5 pt-2 sm:pt-3"> 
+                                <p class="text-sm text-gray-600 mb-2">Nous commençons par :</p>
+                                <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                                    <li>Vous expliquer clairement vos obligations spécifiques et le calendrier.</li>
+                                    <li>Analyser vos processus de facturation actuels et vos outils existants.</li>
+                                    <li>Identifier vos besoins et attentes par rapport à la dématérialisation.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                         <button @click="activeAccordion = activeAccordion === 'solutions' ? null : 'solutions'" class="accordion-header w-full text-left p-4 sm:p-5 flex justify-between items-center">
+                            <h3 class="text-lg sm:text-xl font-semibold text-gray-700 font-poppins">2. Conseil et Choix des Solutions</h3>
+                            <svg :class="{'rotate-180': activeAccordion === 'solutions'}" class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content-wrapper" 
+                             :style="activeAccordion === 'solutions' ? { maxHeight: $el.scrollHeight + 'px', opacity: 1 } : {}">
+                            <div class="p-4 sm:p-5 pt-2 sm:pt-3">
+                                <p class="text-sm text-gray-600 mb-2">Nous vous aidons à sélectionner les outils les plus adaptés :</p>
+                                <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                                    <li>Évaluation de la pertinence du PPF ou d'une PDP pour votre structure.</li>
+                                    <li>Aide à la sélection d'une PDP si nécessaire (fonctionnalités, coût, intégration).</li>
+                                    <li>Vérification de la compatibilité de vos logiciels ou orientation vers des solutions adéquates.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                        <button @click="activeAccordion = activeAccordion === 'misePlace' ? null : 'misePlace'" class="accordion-header w-full text-left p-4 sm:p-5 flex justify-between items-center">
+                            <h3 class="text-lg sm:text-xl font-semibold text-gray-700 font-poppins">3. Mise en Place et Formation</h3>
+                             <svg :class="{'rotate-180': activeAccordion === 'misePlace'}" class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content-wrapper" 
+                             :style="activeAccordion === 'misePlace' ? { maxHeight: $el.scrollHeight + 'px', opacity: 1 } : {}">
+                            <div class="p-4 sm:p-5 pt-2 sm:pt-3">
+                                <p class="text-sm text-gray-600 mb-2">Nous vous assistons activement pour :</p>
+                                <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                                    <li>Le paramétrage des solutions choisies.</li>
+                                    <li>L'adaptation de vos processus internes de facturation.</li>
+                                    <li>La formation de vos équipes aux nouveaux outils et procédures.</li>
+                                    <li>La garantie d'une transmission fluide des informations avec notre cabinet.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                        <button @click="activeAccordion = activeAccordion === 'suivi' ? null : 'suivi'" class="accordion-header w-full text-left p-4 sm:p-5 flex justify-between items-center">
+                            <h3 class="text-lg sm:text-xl font-semibold text-gray-700 font-poppins">4. Suivi Continu et Optimisation</h3>
+                            <svg :class="{'rotate-180': activeAccordion === 'suivi'}" class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content-wrapper" 
+                             :style="activeAccordion === 'suivi' ? { maxHeight: $el.scrollHeight + 'px', opacity: 1 } : {}">
+                            <div class="p-4 sm:p-5 pt-2 sm:pt-3">
+                                <p class="text-sm text-gray-600 mb-2">Après la mise en œuvre, notre accompagnement se poursuit :</p>
+                                <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                                    <li>Veille sur la conformité de vos pratiques.</li>
+                                    <li>Information sur les évolutions réglementaires et techniques.</li>
+                                    <li>Aide à l'exploitation des données pour optimiser votre gestion (tableaux de bord, analyses).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 <p class="text-lg text-gray-600 mt-10">Notre engagement : simplifier votre quotidien et renforcer la performance de votre entreprise. Contactez-nous pour une analyse personnalisée.</p>
+            </div>
+        </section>
+        
+        <section data-section="faq" x-show="activeSection === 'faq'" x-cloak class="space-y-8 sm:space-y-12 scroll-mt-20">
+            <div class="bg-white p-6 sm:p-8 lg:p-10 rounded-xl shadow-lg">
+                <h2 class="text-3xl lg:text-4xl font-semibold text-gray-800 mb-6 lg:mb-8 font-poppins">Questions <span class="text-blue-600">Fréquentes</span> (FAQ)</h2>
+                <p class="text-lg text-gray-600 mb-8">Trouvez ici les réponses à vos interrogations les plus courantes.</p>
+
+                <div x-data="{ activeFaq: null }" class="space-y-4">
+                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                        <button @click="activeFaq = activeFaq === 'q1' ? null : 'q1'" class="accordion-header w-full text-left p-4 sm:p-5 flex justify-between items-center">
+                            <span class="text-base sm:text-lg font-medium text-gray-700">Suis-je concerné par la facture électronique ?</span>
+                            <svg :class="{'rotate-180': activeFaq === 'q1'}" class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content-wrapper" 
+                             :style="activeFaq === 'q1' ? { maxHeight: $el.scrollHeight + 'px', opacity: 1 } : {}">
+                            <p class="p-4 sm:p-5 pt-2 sm:pt-3 text-sm text-gray-600">Oui, si votre entreprise est assujettie à la TVA en France. Toutes les entreprises devront pouvoir recevoir des factures électroniques dès le 1er septembre 2026. L'obligation d'émettre dépendra de votre taille (2026 pour GE/ETI, 2027 pour PME/micro).</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                        <button @click="activeFaq = activeFaq === 'q2' ? null : 'q2'" class="accordion-header w-full text-left p-4 sm:p-5 flex justify-between items-center">
+                            <span class="text-base sm:text-lg font-medium text-gray-700">Un PDF par email est-il une facture électronique ?</span>
+                            <svg :class="{'rotate-180': activeFaq === 'q2'}" class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content-wrapper" 
+                             :style="activeFaq === 'q2' ? { maxHeight: $el.scrollHeight + 'px', opacity: 1 } : {}">
+                            <p class="p-4 sm:p-5 pt-2 sm:pt-3 text-sm text-gray-600">Non. Pour la réforme (B2B domestique), une facture électronique doit être dans un format structuré (Factur-X, UBL, CII) et transiter via une plateforme (PPF ou PDP).</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                        <button @click="activeFaq = activeFaq === 'q3' ? null : 'q3'" class="accordion-header w-full text-left p-4 sm:p-5 flex justify-between items-center">
+                            <span class="text-base sm:text-lg font-medium text-gray-700">Dois-je changer mon logiciel de facturation ?</span>
+                            <svg :class="{'rotate-180': activeFaq === 'q3'}" class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content-wrapper" 
+                             :style="activeFaq === 'q3' ? { maxHeight: $el.scrollHeight + 'px', opacity: 1 } : {}">
+                            <p class="p-4 sm:p-5 pt-2 sm:pt-3 text-sm text-gray-600">Possiblement. Certains logiciels seront mis à jour, d'autres non. Nous évaluerons cela avec vous. Un Opérateur de Dématérialisation (OD) ou une PDP peuvent aussi faire le lien.</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                        <button @click="activeFaq = activeFaq === 'q4' ? null : 'q4'" class="accordion-header w-full text-left p-4 sm:p-5 flex justify-between items-center">
+                            <span class="text-base sm:text-lg font-medium text-gray-700">Combien va coûter cette transition ?</span>
+                            <svg :class="{'rotate-180': activeFaq === 'q4'}" class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content-wrapper" 
+                             :style="activeFaq === 'q4' ? { maxHeight: $el.scrollHeight + 'px', opacity: 1 } : {}">
+                            <p class="p-4 sm:p-5 pt-2 sm:pt-3 text-sm text-gray-600">Les coûts varient. Le PPF est gratuit. Les PDP sont payantes mais offrent plus de services. Des coûts de mise à jour logicielle sont possibles. Nous vous aiderons à trouver la solution équilibrée, en considérant les économies à long terme (papier, temps, etc.).</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                        <button @click="activeFaq = activeFaq === 'q5' ? null : 'q5'" class="accordion-header w-full text-left p-4 sm:p-5 flex justify-between items-center">
+                            <span class="text-base sm:text-lg font-medium text-gray-700">Et pour mes factures B2C ou étrangères ?</span>
+                            <svg :class="{'rotate-180': activeFaq === 'q5'}" class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content-wrapper" 
+                             :style="activeFaq === 'q5' ? { maxHeight: $el.scrollHeight + 'px', opacity: 1 } : {}">
+                            <p class="p-4 sm:p-5 pt-2 sm:pt-3 text-sm text-gray-600">Ces transactions ne sont pas soumises à l'e-invoicing (émission de facture structurée), mais leurs données devront être transmises à l'administration fiscale via le système de e-reporting. Nous vous expliquerons comment gérer ces flux.</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg border border-gray-200">
+                        <button @click="activeFaq = activeFaq === 'q6' ? null : 'q6'" class="accordion-header w-full text-left p-4 sm:p-5 flex justify-between items-center">
+                            <span class="text-base sm:text-lg font-medium text-gray-700">Mon expert-comptable peut-il s'occuper de tout ?</span>
+                            <svg :class="{'rotate-180': activeFaq === 'q6'}" class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content-wrapper" 
+                             :style="activeFaq === 'q6' ? { maxHeight: $el.scrollHeight + 'px', opacity: 1 } : {}">
+                            <p class="p-4 sm:p-5 pt-2 sm:pt-3 text-sm text-gray-600">Nous vous conseillons et vous assistons activement. La gestion quotidienne de votre facturation (création, validation) restera de votre ressort ou celui de vos équipes. La réforme implique une adaptation de vos processus internes. Nous définirons ensemble le périmètre exact de notre intervention.</p>
+                        </div>
+                    </div>
+                </div>
+                 <p class="text-gray-600 mt-8 text-center">D'autres questions ? Contactez-nous directement. Nous sommes là pour vous aider.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-16 border-t border-gray-200 py-10 text-center bg-gray-100">
+        <p class="text-sm text-gray-500">&copy; <span id="currentYear"></span> - Guide Facture Électronique.</p>
+        <p class="text-xs text-gray-400 mt-2">Ce document est fourni à titre informatif. Consultez-nous pour un conseil personnalisé adapté à votre situation.</p>
+    </footer>
+
+    <script>
+        // Le script Alpine.js est chargé via CDN dans le <head> avec defer.
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            
+            Chart.defaults.font.family = 'Inter, sans-serif';
+            Chart.defaults.color = '#4b5563';
+
+            const calendrierCtx = document.getElementById('calendrierChart');
+            if (calendrierCtx) {
+                new Chart(calendrierCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Réception (Toutes Ent.)', 'Émission (GE/ETI)', 'Émission (PME/Micro)'],
+                        datasets: [{
+                            label: 'Entrée en vigueur le',
+                            data: [2026.67, 2026.67, 2027.67], 
+                            backgroundColor: ['#60a5fa', '#34d399', '#f87171'],
+                            borderColor: ['#3b82f6', '#10b981', '#ef4444'],
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: {
+                            x: {
+                                beginAtZero: false,
+                                min: 2025.5, 
+                                max: 2028.5,
+                                grid: { display: false },
+                                ticks: {
+                                    color: '#6b7280',
+                                    callback: function(value) {
+                                        if (value === 2026.67) return 'Sept 2026';
+                                        if (value === 2027.67) return 'Sept 2027';
+                                        if (Number.isInteger(value)) return String(value);
+                                        return null;
+                                    },
+                                   stepSize: 0.5,
+                                }
+                            },
+                            y: {
+                                grid: { 
+                                    drawBorder: false,
+                                    color: '#e5e7eb'
+                                },
+                                ticks: { color: '#4b5563' }
+                            }
+                        },
+                        plugins: {
+                            title: { display: true, text: 'Principales Échéances de la Réforme', font: { size: 16, weight: '600' }, color: '#1f2937', padding: { bottom: 20 } },
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#1f2937',
+                                titleColor: '#f3f4f6',
+                                bodyColor: '#d1d5db',
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        const val = context.parsed.x;
+                                        if (val === 2026.67) return '1er Septembre 2026';
+                                        if (val === 2027.67) return '1er Septembre 2027';
+                                        return null;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const sanctionsCtx = document.getElementById('sanctionsChart');
+            if (sanctionsCtx) {
+                new Chart(sanctionsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Défaut e-invoicing (€/fact.)', 'Défaut e-reporting (€/trans.)'],
+                        datasets: [{
+                            label: 'Montant de l\'amende unitaire',
+                            data: [15, 250],
+                            backgroundColor: ['#fbbf24', '#f97316'],
+                            borderColor: ['#f59e0b', '#ea580c'],
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { 
+                            y: { 
+                                beginAtZero: true, 
+                                suggestedMax: 300,
+                                grid: { color: '#e5e7eb' },
+                                ticks: { color: '#4b5563' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#4b5563' }
+                            }
+                        },
+                        plugins: {
+                            title: { display: true, text: 'Amendes Unitaires (Plafond Annuel: 15 000€)', font: { size: 14, weight: '600' }, color: '#1f2937', padding: { bottom: 15 } },
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#1f2937',
+                                titleColor: '#f3f4f6',
+                                bodyColor: '#d1d5db',
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Amende: ${context.parsed.y} €`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
